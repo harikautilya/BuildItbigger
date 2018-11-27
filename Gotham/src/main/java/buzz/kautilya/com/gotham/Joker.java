@@ -1,7 +1,7 @@
 package buzz.kautilya.com.gotham;
 
 public class Joker {
-    String laugh(){
+    public  String laugh(){
         return "Why so serious";
     }
 }
