@@ -1,9 +1,7 @@
 package com.udacity.gradle.builditbigger;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v4.util.Pair;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -14,17 +12,20 @@ import com.udacity.gradle.builditbigger.backend.myApi.MyApi;
 import java.io.IOException;
 
 import buzz.kautilya.com.bridge.AttackActivity;
-import buzz.kautilya.com.gotham.Joker;
 
 /**
  * Created by Kautilya on 27-11-2018.
  */
-class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
+class EndpointsAsyncTask extends AsyncTask<Void, Void, String> {
     private static MyApi myApiService = null;
-    private Context context;
+    private EndpointsAsyncTaskInteractor endpointsAsyncTaskInteractor;
+
+    public EndpointsAsyncTask(EndpointsAsyncTaskInteractor endpointsAsyncTaskInteractor) {
+        this.endpointsAsyncTaskInteractor = endpointsAsyncTaskInteractor;
+    }
 
     @Override
-    protected String doInBackground(Pair<Context, String>... params) {
+    protected String doInBackground(Void... params) {
         if (myApiService == null) {  // Only do this once
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -43,20 +44,21 @@ class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> 
             myApiService = builder.build();
         }
 
-        context = params[0].first;
-        String name = params[0].second;
 
         try {
-            return myApiService.sayHi(name).execute().getData();
+            return myApiService.sayHi("").execute().getData();
         } catch (IOException e) {
-            return e.getMessage();
+            return "";
         }
     }
 
     @Override
     protected void onPostExecute(String result) {
-        Intent intent = new Intent(context, AttackActivity.class);
-        intent.putExtra("joke", result);
-        context.startActivity(intent);
+        endpointsAsyncTaskInteractor.result(result);
+
+    }
+
+    interface EndpointsAsyncTaskInteractor {
+        void result(String name);
     }
 }
